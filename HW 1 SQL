@@ -1,0 +1,231 @@
+    /* Домашнее задание №1 (Синтаксис Oracle SQL)*/
+     
+     
+    /* Создание таблиц */  
+	CREATE TABLE object_types(
+        object_type_id INTEGER PRIMARY KEY,
+        parent_id INTEGER REFERENCES object_types(object_type_id),
+        name VARCHAR(30),
+        description VARCHAR(100),
+        properties VARCHAR(50)
+    );
+    
+    CREATE TABLE attr_types(
+        attr_type_id INTEGER PRIMARY KEY,
+        name VARCHAR(30),
+        properties VARCHAR(50)
+    );
+    
+    CREATE TABLE attr_groups(
+        attr_group_id INTEGER PRIMARY KEY,
+        name VARCHAR(30),
+        properties VARCHAR(50)
+    );
+    
+    CREATE TABLE attributes (
+        attr_id INTEGER PRIMARY KEY,
+        attr_type_id INTEGER REFERENCES attr_types(attr_type_id),
+        attr_group_id INTEGER REFERENCES attr_groups(attr_group_id),
+        name VARCHAR(30),
+        description VARCHAR(100),
+        ismultiple CHAR(1),
+        properties VARCHAR(50)
+    );
+    
+    CREATE TABLE attr_binds(
+        object_type_id INTEGER REFERENCES object_types(object_type_id),
+        attr_id INTEGER REFERENCES attr_types(attr_type_id),
+        options VARCHAR(30),
+        isrequired CHAR(1),
+        default_value VARCHAR(20),
+        PRIMARY KEY (object_type_id, attr_id)
+    );
+    
+    CREATE TABLE objects(
+        object_id INTEGER PRIMARY KEY,
+        parent_id INTEGER REFERENCES objects(object_id),
+        object_type_id INTEGER REFERENCES object_types(object_type_id),
+        name VARCHAR(30),
+        description VARCHAR(100),
+        order_number INTEGER
+    );
+    
+    CREATE TABLE params(
+        attr_id INTEGER REFERENCES attributes(attr_id),
+        object_id INTEGER REFERENCES objects(object_id),
+        value VARCHAR(25),
+        date_value TIMESTAMP,
+        show_order INTEGER
+    );
+    
+    CREATE TABLE references(
+        attr_id INTEGER REFERENCES attributes(attr_id),
+        object_id INTEGER REFERENCES objects(object_id),
+        reference INTEGER REFERENCES objects(object_id),
+        show_order INTEGER
+    );
+    
+    /* Заполнение таблиц тестовыми данными*/
+    INSERT INTO object_types VALUES(1, NULL, 'Computer', 'Компьютер', 'property 1');
+	INSERT INTO object_types VALUES(2, NULL, 'Printer', 'Принтер', 'property 2');
+	INSERT INTO object_types VALUES(3, 2, 'Inkjet Printer', 'Струйный принтер', 'property 3');
+	INSERT INTO object_types VALUES(4, NULL, 'Head', 'Головка принтера', 'property 4');
+	INSERT INTO object_types VALUES(5, NULL, 'ImageSetter', 'Фотонаборный автомат', 'property 5');
+    
+    INSERT INTO attr_types VALUES(1, 'Dots per Inch', 'property 1');
+	INSERT INTO attr_types VALUES(2, 'Pages per Minute', 'property 2');
+	INSERT INTO attr_types VALUES(3, 'Name', 'property 3');
+	INSERT INTO attr_types VALUES(4, 'Frequency', 'property 4');
+	INSERT INTO attr_types VALUES(5, 'Color', 'property 5');
+	INSERT INTO attr_types VALUES(6, 'Number of Colors', 'property 6');
+	INSERT INTO attr_types VALUES(7, 'Object reference', 'property 7');
+	
+	INSERT INTO attr_groups VALUES(1, 'MRS technique', 'property 1');
+	INSERT INTO attr_groups VALUES(2, 'UPT technique', 'property 2');
+	INSERT INTO attr_groups VALUES(3, 'NTP technique', 'property 3');
+	INSERT INTO attr_groups VALUES(4, 'VNR technique', 'property 4');
+	INSERT INTO attr_groups VALUES(5, 'PLT technique', 'property 5');
+	
+	INSERT INTO attributes VALUES(1, 1, 1, 'dpi', 'description 1', 'N', 'property 1');
+	INSERT INTO attributes VALUES(2, 2, 2, 'ppm', 'description 2', 'N', 'property 2');
+	INSERT INTO attributes VALUES(3, 3, 3, 'networkName', 'description 3', 'Y', 'property 3');
+	INSERT INTO attributes VALUES(4, 4, 4, 'CPUfrequency', 'description 4', 'N', 'property 4');
+	INSERT INTO attributes VALUES(5, 5, 5, 'inkColor', 'description 5', 'N', 'property 5');
+	INSERT INTO attributes VALUES(6, 6, 5, 'colorsCount', 'description 6', 'N', 'property 6');
+	INSERT INTO attributes VALUES(7, 7, 4, 'Computer-Printer', 'description 7', 'Y', 'property 7');
+	INSERT INTO attributes VALUES(8, 4, 3, 'printFreq', 'description 8', 'N', 'property 8');
+	
+	INSERT INTO attr_binds VALUES(2, 1, 'Printer dpi', 'Y', 'NULL');
+	INSERT INTO attr_binds VALUES(5, 1, 'ImageSetter dpi', 'Y', 'NULL');
+	INSERT INTO attr_binds VALUES(2, 2, 'Printer ppm', 'Y', 'NULL');
+	INSERT INTO attr_binds VALUES(3, 6, 'Number of InkJet Colors', 'N', 'NULL');
+	INSERT INTO attr_binds VALUES(4, 5, 'Color of Head', 'N', 'NULL');
+	INSERT INTO attr_binds VALUES(1, 3, 'Computer Name', 'Y', 'NULL');
+	INSERT INTO attr_binds VALUES(1, 4, 'Computer Frequency', 'Y', 'NULL');
+	INSERT INTO attr_binds VALUES(1, 7, 'Connected Printer', 'Y', 'NULL');
+	
+	INSERT INTO objects VALUES(1, NULL, 1, 'MyComp', NULL, 1);
+	INSERT INTO objects VALUES(2, NULL, 3, 'MyPrinter', 'HP DeskJet', 2);
+	INSERT INTO objects VALUES(3, 2, 4, 'Head1', NULL, 3);
+	INSERT INTO objects VALUES(4, 2, 4, 'Head2', NULL, 4);
+	INSERT INTO objects VALUES(5, 2, 4, 'Head3', NULL, 5);
+	INSERT INTO objects VALUES(6, 2, 4, 'Head4', NULL, 6);
+	INSERT INTO objects VALUES(7, NULL, 2, 'NetPrinter', 'HP LaserJet', 7);
+	
+	INSERT INTO params VALUES(3, 1, 'MyComputer', NULL, 1);
+	INSERT INTO params VALUES(3, 1, 'Ivanov', NULL, 2);
+	INSERT INTO params VALUES(4, 1, '2.6', NULL, 3);
+	INSERT INTO params VALUES(1, 2, '600', NULL, 4);
+	INSERT INTO params VALUES(2, 2, '3', NULL, 5);
+	INSERT INTO params VALUES(6, 2, '4', NULL, 6);
+	INSERT INTO params VALUES(5, 3, 'Cyan', NULL, 7);
+	INSERT INTO params VALUES(5, 4, 'Magenta', NULL, 8);
+	INSERT INTO params VALUES(5, 5, 'Yellow', NULL, 9);
+	INSERT INTO params VALUES(5, 6, 'Black', NULL, 0);
+	INSERT INTO params VALUES(1, 7, '1200', NULL, 10);
+	INSERT INTO params VALUES(2, 7, '30', NULL, 11);
+    
+    INSERT INTO references  VALUES(7, 1, 2, 1);
+	INSERT INTO references VALUES(7, 1, 7, 2);
+    
+    /* Выполнение Select'ов*/
+    
+    /* 1) Получение информации обо всех атрибутах(учитывая только атрибутную группу и атрибутные типы)
+            (attr_id, attr_name, attr_group_id, attr_group_name, attr_type_id, attr_type_name)*/
+ 
+
+    SELECT attr.attr_id, attr.name AS attr_name, 
+        groups.attr_group_id, groups.name AS attr_group_name, 
+        type.attr_type_id, type.name AS attr_type_name
+    FROM attributes attr 
+    JOIN attr_types type ON (attr.attr_type_id=type.attr_type_id)
+    JOIN attr_groups groups ON (attr.attr_group_id=groups.attr_group_id)
+    ORDER BY attr.attr_id;
+    
+    /* 2)Получение всех атрибутов для заданного объектного типа, без учета наследования(attr_id, attr_name )*/
+    
+    SELECT attr.attr_id, attr.name AS attr_name 
+    FROM attr_binds binds
+    JOIN object_types obj_type ON (binds.object_type_id=obj_type.object_type_id)
+    JOIN attributes attr ON (binds.attr_id=attr.attr_id)
+    WHERE obj_type.object_type_id=1 ORDER BY attr.attr_id;
+    
+
+    /* 3)Получение иерархии ОТ(объектных типов) для заданного объектного типа(нужно получить иерархию наследования) (ot_id, ot_name, level)*/
+      
+    SELECT object_type_id AS ot_id, name AS ot_name, level 
+    FROM object_types  
+    START WITH object_type_id = 2        
+    CONNECT BY PRIOR object_type_id=parent_id ;
+
+    /* 4)Получение вложенности объектов для заданного объекта(нужно получить иерархию вложенности)(obj_id, obj_name, level)*/
+    
+    SELECT object_id AS obj_id, name AS obj_name, level
+    FROM objects 
+    START WITH object_id = 2        
+    CONNECT BY PRIOR object_id = parent_id ORDER BY order_number;
+
+    /* 5)Получение объектов заданного объектного типа(учитывая только наследование ОТ)(ot_id, ot_name, obj_id, obj_name)*/
+    
+    SELECT type.object_type_id AS ot_id, type.name AS ot_name, 
+        obj.object_id AS obj_id, obj.name AS obj_name
+    FROM objects obj JOIN object_types type ON (obj.object_type_id=type.object_type_id)
+    WHERE obj.object_type_id IN (
+        SELECT object_type_id 
+        FROM object_types  
+        START WITH object_type_id = 2        
+        CONNECT BY PRIOR object_type_id = parent_id
+    ) ORDER BY obj.order_number;
+    
+    
+    /* 6)Получение значений всех атрибутов(всех возможных типов) для заданного объекта(без учета наследования ОТ)(attr_id, attr_name, value)*/
+
+    SELECT attr.attr_id, attr.name AS attr_name, params.value, params.date_value, ref.reference AS reference_value
+    FROM objects obj 
+    JOIN attr_binds binds ON (binds.object_type_id=obj.object_type_id)
+    JOIN attributes attr ON (binds.attr_id=attr.attr_id)
+    LEFT JOIN params ON (params.attr_id=binds.attr_id)
+    LEFT JOIN (
+        SELECT references.attr_id, references.reference FROM references WHERE references.object_id = 1
+    ) ref ON (ref.attr_id=attr.attr_id)
+    WHERE obj.object_id = 1;
+    
+    /* 7)Получение ссылок на заданный объект(все объекты, которые ссылаются на текущий)(ref_id, ref_name)*/
+
+    SELECT ref.object_id AS ref_id, obj.name AS ref_name
+    FROM references ref
+    JOIN objects obj ON ref.object_id = obj.object_id
+    WHERE ref.reference = 7;
+    
+
+    /* 8)Получение значений всех атрибутов(всех возможных типов, без повторяющихся атрибутов) для заданного объекта( с учетом наследования ОТ) Вывести в виде см. п.6*/
+        
+    SELECT DISTINCT attr.attr_id, attr.name AS attr_name, value.value, value.date_value, ref.reference AS reference_value
+    FROM attr_binds binds
+    JOIN object_types type ON (binds.object_type_id=type.object_type_id)
+    JOIN attributes attr ON (binds.attr_id=attr.attr_id)
+    JOIN objects obj ON (binds.object_type_id = obj.object_type_id)
+    LEFT JOIN (
+        SELECT params.attr_id, params.value, params.date_value FROM params WHERE params.object_id = 2
+    ) value ON (value.attr_id = binds.attr_id) 
+    LEFT JOIN (
+        SELECT references.attr_id, references.reference FROM references WHERE references.object_id = 1
+    ) ref ON (ref.attr_id=attr.attr_id)
+    WHERE type.object_type_id IN(
+        SELECT type.object_type_id
+        FROM object_types  type
+        START WITH type.object_type_id = 3       
+        CONNECT BY PRIOR type.parent_id = type.object_type_id
+    ) ;
+    
+
+    /* Удаление всех созданных таблиц из БД*/
+	DROP TABLE object_types CASCADE CONSTRAINTS;
+    DROP TABLE attr_types CASCADE CONSTRAINTS;
+    DROP TABLE attr_groups CASCADE CONSTRAINTS;
+    DROP TABLE attributes CASCADE CONSTRAINTS;
+    DROP TABLE attr_binds CASCADE CONSTRAINTS;
+    DROP TABLE objects CASCADE CONSTRAINTS;
+    DROP TABLE params CASCADE CONSTRAINTS;
+    DROP TABLE references CASCADE CONSTRAINTS;
+    
